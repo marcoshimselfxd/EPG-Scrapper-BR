@@ -33,12 +33,16 @@ def descobrir_canais():
             r = requests.get(url_cat, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
             soup = BeautifulSoup(r.content, 'html.parser')
             
-            for a in soup.find_all('a', href=True):
-                href = a['href']
-                if '/programacao/' in href and href != '/programacao/':
-                    nome = a.get_text().strip()
-                    if nome and nome not in canais:
-                        canais[nome] = href
+            cards = soup.find_all('article', class_='pfcx-card')
+            for card in cards:
+                h3 = card.find('h3', class_='pfcx-canal')
+                link = card.find('a', class_='pfcx-link')
+                
+                nome = h3.get_text().strip() if h3 else ''
+                href = link.get('href', '') if link else ''
+                
+                if nome and href and nome not in canais:
+                    canais[nome] = href
         except:
             pass
     return canais
