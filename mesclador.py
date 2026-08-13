@@ -145,6 +145,7 @@ def mesclar():
         os.path.join(base_dir, 'epg_tvplus.xml'),
         os.path.join(base_dir, 'epg_mitv.xml'),
         os.path.join(base_dir, 'epg_webfinal.xml'),
+        os.path.join(base_dir, 'epg_UFCfightpass.xml'),
     ]
     
     root = ET.Element('tv')
