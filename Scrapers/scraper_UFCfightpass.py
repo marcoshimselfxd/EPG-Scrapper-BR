@@ -99,5 +99,5 @@ def gerar_xml(caminho_saida):
     print(f'XML salvo em: {caminho_saida}')
 
 if __name__ == '__main__':
-    caminho = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'epg_ufc.xml')
+    caminho = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'epg_UFCfightpass.xml')
     gerar_xml(caminho)
