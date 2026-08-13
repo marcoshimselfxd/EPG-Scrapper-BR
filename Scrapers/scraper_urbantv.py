@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 import os
 
+DIAS_PARA_FRENTE = 4
+
 CANAIS_PTBR = [
     ('Otaku', 'otaku'),
     ('Urban Docs', 'docs'),
@@ -32,6 +34,8 @@ def gerar_xml(caminho_saida):
     root = ET.Element('tv')
     root.set('generator-info-name', 'Scraper UrbanTV')
     
+    data_limite = datetime.now() + timedelta(days=DIAS_PARA_FRENTE)
+    
     total_eventos = 0
     
     for nome, slug in CANAIS_PTBR:
@@ -47,9 +51,11 @@ def gerar_xml(caminho_saida):
                 start_utc = datetime.fromisoformat(prog['start'].replace('Z', '+00:00'))
                 stop_utc = datetime.fromisoformat(prog['stop'].replace('Z', '+00:00'))
                 
-                # Converte para Brasília (-3h)
                 start_brasil = start_utc - timedelta(hours=3)
                 stop_brasil = stop_utc - timedelta(hours=3)
+                
+                if start_brasil > data_limite:
+                    continue
                 
                 p = ET.SubElement(root, 'programme')
                 p.set('start', start_brasil.strftime('%Y%m%d%H%M%S') + ' -0300')
