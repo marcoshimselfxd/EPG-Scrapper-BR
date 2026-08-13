@@ -3,6 +3,6 @@ Nos que tem a informação, é extraído a sinopse, gênero, classificação ind
 
 Eu não sou programador, fiz de besteira usando Deepseek e ajustando aos poucos, mas está funcionando muito bem!
 
-O arquivo "EPG.xml" único é uma junção de todos e remoção de duplicados.
+O arquivo "EPG.xml" único é uma junção de todos EPGs em um só e remoção de duplicados.
 
 Pode conter bugs!
