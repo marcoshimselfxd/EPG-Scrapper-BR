@@ -4,12 +4,14 @@ import re
 import os
 
 EQUIVALENCIAS = {
-    'AGROMAIS': 'AGRO+',
+    'AGROMAIS': 'AGRO',
+    'AGRO+': 'AGRO',
     'GLOBOSAT+': 'GLOBOSAT',
     'AMCBRASIL': 'AMC',
     'DISCOVERYCHANNEL': 'DISCOVERY',
     'DISCOVERYSCIENE': 'DISCOVERYSCIENCE',
     'DUMDUM': 'ZOOMOO',
+    'ZOOMOOKIDS': 'ZOOMOO',
     'ESPN1': 'ESPN',
     'FILMARTS': 'FILMARTES',
     'FOXNEWSCHANNEL': 'FOXNEWS',
@@ -33,10 +35,18 @@ EQUIVALENCIAS = {
     'SYFY': 'USANETWORK',
     'USABR': 'USANETWORK',
     'USAHD': 'USANETWORK',
+    'USANETWORK': 'USA',
     'TRACEBRAZUCA': 'TRACEBRASIL',
     'UNIVERSAL': 'UNIVERSALTV',
     'UNIVERSALCHANNEL': 'UNIVERSALTV',
     'WARNERCHANNEL': 'WARNER',
+    'EENTERTAINMENTTELEVISION': 'E',
+    'HISTORYCHANNEL': 'HISTORY',
+    'DISCOVERYHDTHEATER': 'DISCOVERYTHEATER',
+    'TCMTURNERCLASSIC': 'TCM',
+    'TRAVELBOXBRAZIL': 'TRAVELBOXBRASIL',
+    'FOXNEWS': 'FOXNEWS',
+    'FOXNEWSCHANNEL': 'FOXNEWS',
 }
 
 def normalizar_nome(nome):
@@ -44,10 +54,15 @@ def normalizar_nome(nome):
     nome = nome.replace('Ç', 'C').replace('Ã', 'A').replace('Õ', 'O').replace('É', 'E')
     nome = nome.replace('Ê', 'E').replace('Á', 'A').replace('Ó', 'O').replace('Í', 'I')
     nome = nome.replace('Ú', 'U').replace('Â', 'A').replace('Ô', 'O')
+    # Remove sufixos de qualidade
     nome = re.sub(r'\s*(HD|FHD|4K|SD|HEVC|H265)\s*$', '', nome)
+    # Remove caracteres especiais
     nome = nome.replace(' ', '').replace('_', '').replace('-', '').replace('!', '')
+    nome = nome.replace('+', '').replace('&', '').replace('.', '').replace(',', '')
+    
     if nome in EQUIVALENCIAS:
         return EQUIVALENCIAS[nome]
+    
     return nome
 
 def carregar_xml(caminho):
