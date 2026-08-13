@@ -1,4 +1,4 @@
-python3 -c "
+#!/usr/bin/env python3
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -23,8 +23,6 @@ EQUIVALENCIAS = {
     'DUMDUM': 'ZOOMOO',
     'ZOOMOOKIDS': 'ZOOMOO',
     'SYFY': 'USANETWORK',
-    'HISTORY2': 'HISTORY2',
-    'AGROPLUS': 'AGROPLUS',
 }
 
 def normalizar_nome(nome):
@@ -63,13 +61,12 @@ def extrair_guiadetv():
                         canais[nome] = href
         except:
             pass
-    
     dados = {}
     for nome, url in sorted(canais.items()):
         try:
             r = requests.get(url, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
             html = r.text
-            datas = re.findall(r'data-dt=\"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}', html)
+            datas = re.findall(r'data-dt="(\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}', html)
             titulos_blocos = re.findall(r'<h3[^>]*>(.*?)</h3>', html, re.DOTALL)
             titulos = []
             for bloco in titulos_blocos:
@@ -128,7 +125,6 @@ def extrair_meuguia():
                         canais[nome] = href
         except:
             pass
-    
     dados = {}
     for nome, url in sorted(canais.items()):
         try:
@@ -212,7 +208,6 @@ def extrair_tvplus():
                         canais[nome] = url_canal
         except:
             pass
-    
     dados = {}
     for nome, url in sorted(canais.items()):
         try:
@@ -269,13 +264,12 @@ def extrair_mitv():
         for a in soup.find_all('a', href=True):
             href = a['href']
             texto = a.get_text().strip()
-            if '/br/canais/' in href and texto and texto != '\$nameFromProvider':
+            if '/br/canais/' in href and texto and texto != '$nameFromProvider':
                 codigo = href.split('/')[-1]
                 if texto not in canais:
                     canais[texto] = codigo
     except:
         return {}
-    
     dados = {}
     for nome, codigo in sorted(canais.items()):
         try:
@@ -297,10 +291,16 @@ def extrair_mitv():
                     titulo_bruto = h2.get_text().strip() if h2 else ''
                     vivo = h2.find('img', class_='vivo') if h2 else None
                     titulo = titulo_bruto.replace('AO VIVO', '').strip()
-                    if vivo:
-                        eventos.append({'inicio': data_alvo.replace(hour=int(hora[:2]), minute=int(hora[3:])), 'titulo': f'Ao vivo - {titulo}'})
-                    else:
-                        eventos.append({'inicio': data_alvo.replace(hour=int(hora[:2]), minute=int(hora[3:])), 'titulo': titulo})
+                    if hora:
+                        try:
+                            h, m = map(int, hora.split(':'))
+                            inicio = data_alvo.replace(hour=h, minute=m, second=0, microsecond=0)
+                            if vivo:
+                                eventos.append({'inicio': inicio, 'titulo': f'Ao vivo - {titulo}'})
+                            else:
+                                eventos.append({'inicio': inicio, 'titulo': titulo})
+                        except:
+                            pass
             if eventos:
                 eventos.sort(key=lambda x: x['inicio'])
                 dados[nome] = eventos
@@ -366,7 +366,7 @@ for dados_fonte in [dados_guiadetv, dados_meuguia, dados_tvplus, dados_mitv]:
             title.text = ev['titulo']
             total_eventos += 1
 
-caminho = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'epg.xml')
+caminho = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'epg_final.xml')
 tree = ET.ElementTree(root)
 tree.write(caminho, encoding='utf-8', xml_declaration=True)
 
@@ -377,4 +377,3 @@ print(f'  📅 Total eventos: {total_eventos}')
 print(f'  📁 XML salvo em: {caminho}')
 print(f'  📦 Tamanho: {os.path.getsize(caminho) / 1024:.1f} KB')
 print('=' * 60)
-"
