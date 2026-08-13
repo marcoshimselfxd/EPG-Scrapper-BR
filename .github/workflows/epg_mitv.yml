@@ -22,7 +22,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git pull --rebase
           git add epg_mitv.xml
           git commit -m "Atualiza EPG MiTV $(date +%Y-%m-%d_%H:%M)"
+          git pull --rebase
           git push
