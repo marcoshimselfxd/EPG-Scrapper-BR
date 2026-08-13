@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 import os
 import time
 
-DIAS_PARA_FRENTE = 5
+DIAS_PARA_FRENTE = 4
 
 CATEGORIAS = [
     'https://meuguia.tv/programacao/categoria/Filmes',
