@@ -76,6 +76,14 @@ def extrair_programacao(url_canal, data_limite):
         desc = card.find('p', class_='descricao')
         descricao = desc.get_text().strip() if desc else ''
         
+        # Extrai ano da descrição
+        ano = ''
+        descricao_limpa = descricao
+        match_ano = re.match(r'^(\d{4})\.\s*(.+)', descricao)
+        if match_ano:
+            ano = match_ano.group(1)
+            descricao_limpa = match_ano.group(2)
+        
         duracao_elem = card.find('span', class_='duration-badge')
         duracao_texto = duracao_elem.get_text().strip() if duracao_elem else ''
         
@@ -92,7 +100,8 @@ def extrair_programacao(url_canal, data_limite):
             'inicio': inicio,
             'fim': fim,
             'titulo': titulo,
-            'descricao': descricao,
+            'ano': ano,
+            'descricao': descricao_limpa,
             'duracao': duracao_minutos
         }
         
@@ -134,6 +143,10 @@ def gerar_xml(caminho_saida):
                 
                 title = ET.SubElement(prog, 'title')
                 title.text = ev['titulo']
+                
+                if ev['ano']:
+                    date = ET.SubElement(prog, 'date')
+                    date.text = ev['ano']
                 
                 if ev['descricao']:
                     desc = ET.SubElement(prog, 'desc')
