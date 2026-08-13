@@ -1,8 +1,6 @@
 Scrapers feito em Python3 para extrair canais do meuguia.tv, guiadetv.com, mi.tv, tvplus.com.br e criar arquivo EPG deles (separados) até 5 dias na frente.
-Nos que tem a informação, é extraído a sinopse, gênero, classificação indicativa, temporada/episódio, etc...
+Nos sites que tem a informação, é extraído a sinopse, gênero, classificação indicativa, temporada/episódio, país, duração, etc...
 
-Eu não sou programador, fiz de besteira usando Deepseek e ajustando aos poucos, mas está funcionando muito bem!
+O arquivo "EPG.xml" na home é uma junção de todos EPGs em um só e remoção de duplicados.
 
-O arquivo "EPG.xml" único é uma junção de todos EPGs em um só e remoção de duplicados.
-
-Pode conter bugs!
+Pode conter bugs! Eu não sou programador, fiz de besteira usando Deepseek e ajustando aos poucos, mas está funcionando muito bem!
