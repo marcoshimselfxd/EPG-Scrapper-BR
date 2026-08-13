@@ -145,8 +145,10 @@ def gerar_xml(caminho_saida):
             
             for ev in eventos:
                 prog = ET.SubElement(root, 'programme')
-                prog.set('start', ev['inicio'].strftime('%Y%m%d%H%M%S -0300'))
-                prog.set('stop', ev['fim'].strftime('%Y%m%d%H%M%S -0300'))
+                inicio_utc = ev['inicio'] - timedelta(hours=3)
+                fim_utc = ev['fim'] - timedelta(hours=3)
+                prog.set('start', inicio_utc.strftime('%Y%m%d%H%M%S') + ' -0300')
+                prog.set('stop', fim_utc.strftime('%Y%m%d%H%M%S') + ' -0300')
                 prog.set('channel', nome)
                 
                 title = ET.SubElement(prog, 'title')
