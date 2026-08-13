@@ -81,7 +81,6 @@ NOMES_FINAIS = {
     'PREMIERE2': 'Premiere 2',
     'PREMIERE3': 'Premiere 3',
     'PREMIERE4': 'Premiere 4',
-    'PREMIERE5': 'Premiere 5',
     'PREMIERE6': 'Premiere 6',
     'PREMIERE7': 'Premiere 7',
     'PREMIERE8': 'Premiere 8',
@@ -145,6 +144,7 @@ def mesclar():
         os.path.join(base_dir, 'epg_meuguia.xml'),
         os.path.join(base_dir, 'epg_tvplus.xml'),
         os.path.join(base_dir, 'epg_mitv.xml'),
+        os.path.join(base_dir, 'epg_webfinal.xml'),
     ]
     
     root = ET.Element('tv')
