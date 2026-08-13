@@ -64,7 +64,8 @@ def extrair_programacao(url_canal, data_limite):
         if not link_prog:
             continue
         
-        titulo = link_prog.get_text().strip()
+        titulo = ' '.join(link_prog.get_text().split())
+        titulo = re.sub(r'^AO\s*VIVO\s*', '', titulo, flags=re.IGNORECASE).strip()
         url_programa = link_prog['href']
         if url_programa.startswith('/'):
             url_programa = 'https://www.guiadetv.com' + url_programa
