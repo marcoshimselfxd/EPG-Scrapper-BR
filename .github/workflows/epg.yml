@@ -1,0 +1,32 @@
+name: Gerar EPG
+
+on:
+  schedule:
+    - cron: '0 6,12,18,22 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+      
+      - name: Run scraper
+        run: python scraper.py
+      
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add epg_final.xml
+          git commit -m "Atualiza EPG $(date +%Y-%m-%d_%H:%M)"
+          git push
