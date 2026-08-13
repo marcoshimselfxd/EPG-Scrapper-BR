@@ -1,4 +1,4 @@
-Scrapers feito em Python3 para extrair programação de canais de TV do meuguia.tv, guiadetv.com, mi.tv, tvplus.com.br, webfinal.com.br, UFC.com.br e criar arquivo EPG deles (separados) até 5 dias na frente.
+Scrapers feito em Python3 para extrair programação de canais de TV do meuguia.tv, guiadetv.com, mi.tv, tvplus.com.br, webfinal.com.br, UrbanTV, UFC.com.br e criar arquivo EPG deles (separados) até 5 dias na frente.
 Nos sites que tem a informação, é extraído a sinopse, gênero, classificação indicativa, temporada/episódio, país, duração, etc...
 
 O arquivo "EPG.xml" na home é uma junção de todos EPGs em um só com remoção de duplicados através do mesclador.py
