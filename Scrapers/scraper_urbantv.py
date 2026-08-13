@@ -52,8 +52,8 @@ def gerar_xml(caminho_saida):
                 start_utc = datetime.fromisoformat(prog['start'].replace('Z', '+00:00'))
                 stop_utc = datetime.fromisoformat(prog['stop'].replace('Z', '+00:00'))
                 
-                start_brasil = start_utc - timedelta(hours=3)
-                stop_brasil = stop_utc - timedelta(hours=3)
+                start_brasil = (start_utc - timedelta(hours=3)).replace(tzinfo=None)
+                stop_brasil = (stop_utc - timedelta(hours=3)).replace(tzinfo=None)
                 
                 if start_brasil < hoje_inicio:
                     continue
