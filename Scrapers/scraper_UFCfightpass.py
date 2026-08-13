@@ -32,7 +32,8 @@ def extrair_eventos():
             pais = country_elem.get_text().strip() if country_elem else ''
             
             if timestamp and titulo:
-                inicio = datetime.fromtimestamp(int(timestamp))
+                inicio_local = datetime.fromtimestamp(int(timestamp))
+                inicio = inicio_local - timedelta(hours=3)
                 fim = inicio + timedelta(hours=DURACAO_ESTIMADA)
                 
                 todos_eventos.append({
@@ -73,8 +74,8 @@ def gerar_xml(caminho_saida):
     
     for ev in eventos_validos:
         prog = ET.SubElement(root, 'programme')
-        prog.set('start', ev['inicio'].strftime('%Y%m%d%H%M%S -0300'))
-        prog.set('stop', ev['fim'].strftime('%Y%m%d%H%M%S -0300'))
+        prog.set('start', ev['inicio'].strftime('%Y%m%d%H%M%S') + ' -0300')
+        prog.set('stop', ev['fim'].strftime('%Y%m%d%H%M%S') + ' -0300')
         prog.set('channel', 'UFC Fight Pass')
         
         title = ET.SubElement(prog, 'title')
