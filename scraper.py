@@ -366,7 +366,7 @@ for dados_fonte in [dados_guiadetv, dados_meuguia, dados_tvplus, dados_mitv]:
             title.text = ev['titulo']
             total_eventos += 1
 
-caminho = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'epg_final.xml')
+caminho = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'epg.xml')
 tree = ET.ElementTree(root)
 tree.write(caminho, encoding='utf-8', xml_declaration=True)
 
