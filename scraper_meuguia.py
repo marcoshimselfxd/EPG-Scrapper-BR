@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 import os
 import time
 
-DIAS_PARA_FRENTE = 7
+DIAS_PARA_FRENTE = 5
 
 CATEGORIAS = [
     'https://meuguia.tv/programacao/categoria/Filmes',
@@ -37,7 +37,7 @@ def descobrir_canais():
             pass
     return canais
 
-def extrair_programacao(url_canal, data_limite):
+def extrair_programacao(url_canal, data_limite, hoje):
     if url_canal.startswith('/'):
         url_canal = 'https://meuguia.tv' + url_canal
     
@@ -46,7 +46,6 @@ def extrair_programacao(url_canal, data_limite):
     texto = soup.get_text()
     linhas = [l.strip() for l in texto.split('\n') if l.strip()]
     
-    hoje = datetime.now()
     eventos = []
     data_atual = None
     
@@ -70,23 +69,23 @@ def extrair_programacao(url_canal, data_limite):
             if inicio > data_limite:
                 continue
             
+            titulo = ''
+            genero = ''
+            
             if i + 1 < len(linhas):
-                titulo_bruto = linhas[i + 1]
-                ja_tem_vt = titulo_bruto.upper().startswith('VT')
-                tem_ao_vivo = 'ao vivo' in titulo_bruto.lower()
-                
-                titulo_limpo = re.sub(r'\s*-\s*Ao Vivo\s*$', '', titulo_bruto, flags=re.IGNORECASE)
-                titulo_limpo = titulo_limpo.strip()
-                
-                if not titulo_limpo.startswith('Publicidade'):
-                    if tem_ao_vivo and not titulo_limpo.upper().startswith('AO VIVO'):
-                        titulo_final = f'Ao vivo - {titulo_limpo}'
-                    elif ja_tem_vt:
-                        titulo_final = titulo_limpo
-                    else:
-                        titulo_final = titulo_limpo
-                    
-                    eventos.append({'inicio': inicio, 'titulo': titulo_final})
+                titulo = linhas[i + 1]
+            
+            if i + 2 < len(linhas):
+                genero_bruto = linhas[i + 2]
+                if '/' in genero_bruto and not genero_bruto.startswith('Publicidade'):
+                    genero = genero_bruto
+            
+            if titulo and not titulo.startswith('Publicidade'):
+                eventos.append({
+                    'inicio': inicio,
+                    'titulo': titulo,
+                    'genero': genero
+                })
     
     return eventos
 
@@ -101,10 +100,11 @@ def gerar_xml(caminho_saida):
     root.set('generator-info-name', 'Scraper MeuGuia')
     
     total_eventos = 0
+    processados = 0
     
     for nome, url in sorted(canais.items()):
         try:
-            eventos = extrair_programacao(url, data_limite)
+            eventos = extrair_programacao(url, data_limite, hoje)
             if not eventos:
                 continue
             
@@ -123,21 +123,32 @@ def gerar_xml(caminho_saida):
                 prog.set('start', ev['inicio'].strftime('%Y%m%d%H%M%S -0300'))
                 prog.set('stop', ev['fim'].strftime('%Y%m%d%H%M%S -0300'))
                 prog.set('channel', nome)
+                
                 title = ET.SubElement(prog, 'title')
                 title.text = ev['titulo']
+                
+                if ev['genero']:
+                    partes = ev['genero'].split('/')
+                    if len(partes) > 0 and partes[0].strip():
+                        cat1 = ET.SubElement(prog, 'category')
+                        cat1.text = partes[0].strip()
+                    if len(partes) > 1 and partes[1].strip():
+                        cat2 = ET.SubElement(prog, 'category')
+                        cat2.text = partes[1].strip()
             
             total_eventos += len(eventos)
-            time.sleep(0.05)
+            processados += 1
+            time.sleep(0.03)
         except:
             pass
     
     tree = ET.ElementTree(root)
     tree.write(caminho_saida, encoding='utf-8', xml_declaration=True)
     
+    print(f'Canais processados: {processados}/{len(canais)}')
     print(f'Eventos extraídos: {total_eventos}')
     print(f'XML salvo em: {caminho_saida}')
 
 if __name__ == '__main__':
-    desktop = os.path.expanduser('~/Desktop')
-    caminho = os.path.join(desktop, 'epg_meuguia.xml')
+    caminho = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'epg_meuguia.xml')
     gerar_xml(caminho)
