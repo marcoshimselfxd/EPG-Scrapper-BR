@@ -55,7 +55,7 @@ def extrair_programacao(url_canal, data_limite):
     soup = BeautifulSoup(r.content, 'html.parser')
     
     eventos = []
-    cards = soup.find_all('div', class_='program-card')
+    cards = soup.find_all('div', class_=re.compile(r'program-card'))
     
     for card in cards:
         data_start = card.get('data-start', '')
@@ -99,6 +99,10 @@ def extrair_programacao(url_canal, data_limite):
                 horas = int(match_duracao.group(1))
                 minutos = int(match_duracao.group(2))
                 duracao_minutos = str(horas * 60 + minutos)
+            else:
+                match_min = re.match(r'(\d+)\s*min', duracao_texto)
+                if match_min:
+                    duracao_minutos = match_min.group(1)
         
         evento = {
             'inicio': inicio,
