@@ -27,6 +27,6 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git add epg_final.xml
+          git add epg.xml
           git commit -m "Atualiza EPG $(date +%Y-%m-%d_%H:%M)"
           git push
