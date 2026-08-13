@@ -34,7 +34,8 @@ def gerar_xml(caminho_saida):
     root = ET.Element('tv')
     root.set('generator-info-name', 'Scraper UrbanTV')
     
-    data_limite = datetime.now() + timedelta(days=DIAS_PARA_FRENTE)
+    hoje_inicio = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    data_limite = hoje_inicio + timedelta(days=DIAS_PARA_FRENTE)
     
     total_eventos = 0
     
@@ -54,6 +55,8 @@ def gerar_xml(caminho_saida):
                 start_brasil = start_utc - timedelta(hours=3)
                 stop_brasil = stop_utc - timedelta(hours=3)
                 
+                if start_brasil < hoje_inicio:
+                    continue
                 if start_brasil > data_limite:
                     continue
                 
