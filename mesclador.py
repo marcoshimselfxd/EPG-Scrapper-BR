@@ -18,8 +18,8 @@ EQUIVALENCIAS = {
     'FOODNETWORKHDBRASIL': 'FOODNETWORK',
     'CARTOONNETWORKBRAZIL': 'CARTOONNETWORK',
     'H2': 'HISTORY2',
-    'INVESTIGACAODISCOVERY': 'DISCOVERYID',
-    'DISCOVERYINVESTIGACAO': 'DISCOVERYID',
+    'INVESTIGACAODISCOVERY': 'DISCOVERYINVESTIGACAO',
+    'DISCOVERYINVESTIGACAO': 'DISCOVERYINVESTIGACAO',
     'JPNEWS': 'JOVEMPANNEWS',
     'LIFETIMEBRAZIL': 'LIFETIME',
     'MAXPRIMEE': 'MAXPRIME',
@@ -32,9 +32,9 @@ EQUIVALENCIAS = {
     'PREMIERECLUBES': 'PREMIERE',
     'PRIMEBOXBRASIL': 'PRIMEBOXBRAZIL',
     'SICTV': 'SIC',
-    'SYFY': 'USANETWORK',
-    'USABR': 'USANETWORK',
-    'USAHD': 'USANETWORK',
+    'SYFY': 'USA',
+    'USABR': 'USA',
+    'USAHD': 'USA',
     'USANETWORK': 'USA',
     'TRACEBRAZUCA': 'TRACEBRASIL',
     'UNIVERSAL': 'UNIVERSALTV',
@@ -45,8 +45,52 @@ EQUIVALENCIAS = {
     'DISCOVERYHDTHEATER': 'DISCOVERYTHEATER',
     'TCMTURNERCLASSIC': 'TCM',
     'TRAVELBOXBRAZIL': 'TRAVELBOXBRASIL',
-    'FOXNEWS': 'FOXNEWS',
-    'FOXNEWSCHANNEL': 'FOXNEWS',
+    'VIVA': 'GLOBOPLAYNOVELAS',
+    'SONY': 'SONYCHANNEL',
+    'PREMIERE5BRAZIL': 'PREMIERE5',
+}
+
+NOMES_FINAIS = {
+    'WARNER': 'Warner Channel',
+    'DISCOVERYTHEATER': 'Discovery Theater',
+    'E': 'E!',
+    'GLOBOSAT': 'Globosat',
+    'GLOBOPLAYNOVELAS': 'Globoplay Novelas',
+    'USA': 'USA',
+    'SONYCHANNEL': 'Sony Channel',
+    'PREMIERE5': 'Premiere 5',
+    'PREMIERE': 'Premiere',
+    'DISCOVERYINVESTIGACAO': 'Discovery Investigação',
+    'AGRO': 'Agro+',
+    'AMC': 'AMC',
+    'DISCOVERY': 'Discovery',
+    'DISCOVERYSCIENCE': 'Discovery Science',
+    'ZOOMOO': 'ZooMoo',
+    'ESPN': 'ESPN',
+    'FILMARTES': 'Film & Arts',
+    'FOXNEWS': 'Fox News',
+    'FOODNETWORK': 'Food Network',
+    'CARTOONNETWORK': 'Cartoon Network',
+    'HISTORY': 'History',
+    'HISTORY2': 'History 2',
+    'JOVEMPANNEWS': 'Jovem Pan News',
+    'LIFETIME': 'Lifetime',
+    'MAXPRIME': 'Maxprime',
+    'MUSICBOXBRASIL': 'Music Box Brasil',
+    'PARAMOUNTCHANNEL': 'Paramount Channel',
+    'PREMIERE2': 'Premiere 2',
+    'PREMIERE3': 'Premiere 3',
+    'PREMIERE4': 'Premiere 4',
+    'PREMIERE5': 'Premiere 5',
+    'PREMIERE6': 'Premiere 6',
+    'PREMIERE7': 'Premiere 7',
+    'PREMIERE8': 'Premiere 8',
+    'PRIMEBOXBRAZIL': 'Prime Box Brazil',
+    'SIC': 'SIC',
+    'TRACEBRASIL': 'Trace Brasil',
+    'UNIVERSALTV': 'Universal TV',
+    'TCM': 'TCM',
+    'TRAVELBOXBRASIL': 'Travel Box Brasil',
 }
 
 def normalizar_nome(nome):
@@ -54,9 +98,7 @@ def normalizar_nome(nome):
     nome = nome.replace('Ç', 'C').replace('Ã', 'A').replace('Õ', 'O').replace('É', 'E')
     nome = nome.replace('Ê', 'E').replace('Á', 'A').replace('Ó', 'O').replace('Í', 'I')
     nome = nome.replace('Ú', 'U').replace('Â', 'A').replace('Ô', 'O')
-    # Remove sufixos de qualidade
     nome = re.sub(r'\s*(HD|FHD|4K|SD|HEVC|H265)\s*$', '', nome)
-    # Remove caracteres especiais
     nome = nome.replace(' ', '').replace('_', '').replace('-', '').replace('!', '')
     nome = nome.replace('+', '').replace('&', '').replace('.', '').replace(',', '')
     
@@ -125,19 +167,20 @@ def mesclar():
             if nome_norm in nomes_processados:
                 continue
             
-            nomes_processados[nome_norm] = nome
+            nome_final = NOMES_FINAIS.get(nome_norm, nome)
+            nomes_processados[nome_norm] = nome_final
             
             channel = ET.SubElement(root, 'channel')
-            channel.set('id', nome)
+            channel.set('id', nome_final)
             display = ET.SubElement(channel, 'display-name')
-            display.text = nome
+            display.text = nome_final
             
             for prog in dados['programas']:
                 if prog['channel'] == cid:
                     p = ET.SubElement(root, 'programme')
                     p.set('start', prog['start'])
                     p.set('stop', prog['stop'])
-                    p.set('channel', nome)
+                    p.set('channel', nome_final)
                     
                     title = ET.SubElement(p, 'title')
                     title.text = prog['title']
