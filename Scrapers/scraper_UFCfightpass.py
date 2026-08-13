@@ -49,9 +49,10 @@ def extrair_eventos():
 def gerar_xml(caminho_saida):
     eventos = extrair_eventos()
     
-    hoje = datetime.now()
+    hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     data_limite = hoje + timedelta(days=DIAS_PARA_FRENTE)
     
+    # Filtra eventos válidos
     eventos_validos = []
     for ev in eventos:
         if 'TBD' in ev['titulo'].upper():
@@ -64,6 +65,64 @@ def gerar_xml(caminho_saida):
     
     eventos_validos.sort(key=lambda x: x['inicio'])
     
+    # Cria programação com placeholders
+    programacao_final = []
+    data_atual = hoje
+    cursor = hoje
+    
+    while data_atual < data_limite:
+        dia_seguinte = data_atual + timedelta(days=1)
+        
+        eventos_do_dia = [ev for ev in eventos_validos if ev['inicio'].date() == data_atual.date()]
+        
+        if not eventos_do_dia:
+            if cursor < dia_seguinte:
+                programacao_final.append({
+                    'inicio': cursor,
+                    'fim': dia_seguinte,
+                    'titulo': 'Aguardando próximo evento',
+                    'desc': 'UFC Fight Pass - Sem evento programado'
+                })
+                cursor = dia_seguinte
+        else:
+            eventos_do_dia.sort(key=lambda x: x['inicio'])
+            
+            for ev in eventos_do_dia:
+                if cursor < ev['inicio']:
+                    programacao_final.append({
+                        'inicio': cursor,
+                        'fim': ev['inicio'],
+                        'titulo': 'Aguardando próximo evento',
+                        'desc': 'UFC Fight Pass - Sem evento programado'
+                    })
+                
+                desc_texto = ev['titulo']
+                if ev['local']:
+                    desc_texto += f' - {ev["local"]}'
+                if ev['pais']:
+                    desc_texto += f', {ev["pais"]}'
+                
+                programacao_final.append({
+                    'inicio': ev['inicio'],
+                    'fim': ev['fim'],
+                    'titulo': ev['titulo'],
+                    'desc': desc_texto
+                })
+                
+                cursor = ev['fim']
+            
+            if cursor < dia_seguinte:
+                programacao_final.append({
+                    'inicio': cursor,
+                    'fim': dia_seguinte,
+                    'titulo': 'Aguardando próximo evento',
+                    'desc': 'UFC Fight Pass - Sem evento programado'
+                })
+                cursor = dia_seguinte
+        
+        data_atual = dia_seguinte
+    
+    # Gera XML
     root = ET.Element('tv')
     root.set('generator-info-name', 'Scraper UFC Fight Pass')
     
@@ -72,7 +131,7 @@ def gerar_xml(caminho_saida):
     display = ET.SubElement(channel, 'display-name')
     display.text = 'UFC Fight Pass'
     
-    for ev in eventos_validos:
+    for ev in programacao_final:
         prog = ET.SubElement(root, 'programme')
         prog.set('start', ev['inicio'].strftime('%Y%m%d%H%M%S') + ' -0300')
         prog.set('stop', ev['fim'].strftime('%Y%m%d%H%M%S') + ' -0300')
@@ -81,14 +140,8 @@ def gerar_xml(caminho_saida):
         title = ET.SubElement(prog, 'title')
         title.text = ev['titulo']
         
-        desc_texto = ev['titulo']
-        if ev['local']:
-            desc_texto += f' - {ev["local"]}'
-        if ev['pais']:
-            desc_texto += f', {ev["pais"]}'
-        
         desc = ET.SubElement(prog, 'desc')
-        desc.text = desc_texto
+        desc.text = ev['desc']
         
         category = ET.SubElement(prog, 'category')
         category.text = 'Luta'
@@ -97,6 +150,7 @@ def gerar_xml(caminho_saida):
     tree.write(caminho_saida, encoding='utf-8', xml_declaration=True)
     
     print(f'Eventos encontrados: {len(eventos_validos)}')
+    print(f'Programas no XML (eventos + placeholders): {len(programacao_final)}')
     print(f'XML salvo em: {caminho_saida}')
 
 if __name__ == '__main__':
