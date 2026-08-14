@@ -46,7 +46,7 @@ def extrair_todos():
     return todos_canais
 
 def gerar_xml(caminho_saida):
-    hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
     data_limite = hoje + timedelta(days=DIAS_PARA_FRENTE)
     
     todos_canais = extrair_todos()
@@ -71,8 +71,8 @@ def gerar_xml(caminho_saida):
                 continue
             
             try:
-                inicio = datetime.fromisoformat(start_str)
-                fim = datetime.fromisoformat(end_str)
+                inicio = datetime.fromisoformat(start_str).replace(tzinfo=None)
+                fim = datetime.fromisoformat(end_str).replace(tzinfo=None)
             except:
                 continue
             
