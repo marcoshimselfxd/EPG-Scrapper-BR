@@ -2,7 +2,7 @@ name: EPG TVMap
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '30 6,18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,6 +23,6 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add epg_tvmap.xml
-          git commit -m "Atualiza EPG TVMap $(date +%Y-%m-%d_%H:%M)"
+          git commit -m "Atualiza EPG TVMap $(date +%Y-%m-%d_%H:%M)" || echo "Sem mudanças"
           git pull --rebase
           git push --force-with-lease
