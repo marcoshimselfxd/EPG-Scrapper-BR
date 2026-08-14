@@ -25,4 +25,4 @@ jobs:
           git add epg_tvplus.xml
           git commit -m "Atualiza EPG TVplus $(date +%Y-%m-%d_%H:%M)"
           git pull --rebase
-          git push
+          git push --force-with-lease
