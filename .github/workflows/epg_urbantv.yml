@@ -2,7 +2,7 @@ name: EPG UrbanTV
 
 on:
   schedule:
-    - cron: '30 5 * * *'
+    - cron: '30 2 * * *'
   workflow_dispatch:
 
 jobs:
