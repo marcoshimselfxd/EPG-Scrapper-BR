@@ -23,4 +23,4 @@ jobs:
           git add epg.xml
           git commit -m "Atualiza EPG mesclado $(date +%Y-%m-%d_%H:%M)"
           git pull --rebase
-          git push
+          git push --force-with-lease
