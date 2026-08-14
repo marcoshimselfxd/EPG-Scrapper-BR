@@ -2,7 +2,7 @@ name: EPG UrbanTV
 
 on:
   schedule:
-    - cron: '30 2 * * *'
+    - cron: '0 6,18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,6 +23,6 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add epg_urbantv.xml
-          git commit -m "Atualiza EPG UrbanTV $(date +%Y-%m-%d_%H:%M)"
+          git commit -m "Atualiza EPG UrbanTV $(date +%Y-%m-%d_%H:%M)" || echo "Sem mudanças"
           git pull --rebase
           git push --force-with-lease
