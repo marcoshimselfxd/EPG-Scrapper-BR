@@ -1,0 +1,28 @@
+name: EPG TVMap
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+      - name: Run scraper
+        run: python Scrapers/scraper_tvmap.py
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add epg_tvmap.xml
+          git commit -m "Atualiza EPG TVMap $(date +%Y-%m-%d_%H:%M)"
+          git pull --rebase
+          git push --force-with-lease
