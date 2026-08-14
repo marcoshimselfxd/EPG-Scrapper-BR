@@ -25,4 +25,4 @@ jobs:
           git add epg_urbantv.xml
           git commit -m "Atualiza EPG UrbanTV $(date +%Y-%m-%d_%H:%M)"
           git pull --rebase
-          git push
+          git push --force-with-lease
