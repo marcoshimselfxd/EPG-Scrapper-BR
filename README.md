@@ -5,4 +5,6 @@ O arquivo "EPG.xml" na home é uma junção de todos EPGs em um só com remoçã
 
 Os arquivos podem ser carregados diretamente no player (Tivimate, etc...), se não aparecer a programação em alguns, experimente usar a função "Atribuir EPG" e fazer o match certo, pois se não estiver 100% idêntico ao nome do canal, ele não vai acertar.
 
+Todas as listas são atualizadas duas vezes ao dia.
+
 Pode conter bugs! Eu não sou programador, fiz de besteira usando Deepseek e ajustando aos poucos, mas está funcionando muito bem!
