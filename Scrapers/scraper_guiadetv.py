@@ -81,7 +81,7 @@ def extrair_programacao(url_canal, data_limite):
         else:
             p_any = bloco.find('p')
             if p_any:
-                sinopse = p_any.get_text().strip()[:200]
+                sinopse = p_any.get_text().strip()
         
         classificacao = ''
         if not sinopse:
