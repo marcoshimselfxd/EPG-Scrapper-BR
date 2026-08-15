@@ -77,7 +77,7 @@ def extrair_programacao(url_canal, data_limite):
         sinopse = ''
         p_fs7 = bloco.find('p', class_='fs-7')
         if p_fs7:
-            sinopse = p_fs7.get_text().strip()[:200]
+            sinopse = p_fs7.get_text().strip()
         else:
             p_any = bloco.find('p')
             if p_any:
