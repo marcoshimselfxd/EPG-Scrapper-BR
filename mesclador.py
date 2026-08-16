@@ -51,6 +51,7 @@ EQUIVALENCIAS = {
 }
 
 NOMES_FINAIS = {
+    'DISCOVERYCHANNEL': 'Discovery Channel',
     'WARNER': 'Warner Channel',
     'DISCOVERYTHEATER': 'Discovery Theater',
     'E': 'E!',
