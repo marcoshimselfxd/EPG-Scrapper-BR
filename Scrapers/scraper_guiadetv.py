@@ -93,7 +93,7 @@ def extrair_programacao(url_canal, data_limite):
                 if box:
                     p_sinopse = box.find('p')
                     if p_sinopse:
-                        sinopse = p_sinopse.get_text().strip()[:200]
+                        sinopse = p_sinopse.get_text().strip()
                 
                 faixa = soup_prog.find('div', class_='faixa')
                 if faixa:
