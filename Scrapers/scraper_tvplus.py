@@ -63,7 +63,7 @@ def extrair_programacao(url_canal, data_limite, hoje):
         
         texto_info = info.get_text().strip()
         
-        match_dia = re.match(r'^([A-Za-z]+),\s*(\d+)\s*de\s*([A-Za-z]+)', texto_info)
+        match_dia = re.match(r'^([A-Za-zÀ-ÿ]+),\s*(\d+)\s*de\s*([A-Za-zÀ-ÿ]+)', texto_info)
         if match_dia:
             mes_nome = match_dia.group(3).lower()
             mes_num = MESES.get(mes_nome, 0)
