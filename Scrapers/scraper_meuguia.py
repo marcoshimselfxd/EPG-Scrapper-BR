@@ -9,16 +9,18 @@ import time
 
 DIAS_PARA_FRENTE = 4
 
+BASE = 'https://www.guiadetv.com'
+
 CATEGORIAS = [
-    'https://meuguia.tv/programacao/categoria/Filmes',
-    'https://meuguia.tv/programacao/categoria/Series',
-    'https://meuguia.tv/programacao/categoria/Esportes',
-    'https://meuguia.tv/programacao/categoria/Infantil',
-    'https://meuguia.tv/programacao/categoria/Variedades',
-    'https://meuguia.tv/programacao/categoria/Documentarios',
-    'https://meuguia.tv/programacao/categoria/Noticias',
-    'https://meuguia.tv/programacao/categoria/Aberta',
+    'https://www.guiadetv.com/categorias/variedades.html',
+    'https://www.guiadetv.com/categorias/tv-aberta.html',
+    'https://www.guiadetv.com/categorias/noticias.html',
+    'https://www.guiadetv.com/categorias/infantil.html',
+    'https://www.guiadetv.com/categorias/filmes-e-series.html',
+    'https://www.guiadetv.com/categorias/esportes.html',
+    'https://www.guiadetv.com/categorias/documentarios.html',
 ]
+
 
 def descobrir_canais():
     canais = {}
@@ -26,13 +28,15 @@ def descobrir_canais():
         try:
             r = requests.get(url_cat, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
             soup = BeautifulSoup(r.content, 'html.parser')
-            for a in soup.find_all('a', href=True):
+            for a in soup.find_all('a', href=re.compile(r'/canal/')):
                 href = a['href']
-                if '/programacao/canal/' in href:
-                    texto = a.get_text().strip()
-                    nome = texto.split('\n')[0].strip()
-                    if nome and nome not in canais:
-                        canais[nome] = href
+                if href.startswith('//'):
+                    href = 'https:' + href
+                elif href.startswith('/'):
+                    href = BASE + href
+                nome = ' '.join(a.get_text().split())
+                if nome and nome not in canais:
+                    canais[nome] = href
         except:
             pass
     return canais
