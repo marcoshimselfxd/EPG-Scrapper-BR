@@ -9,16 +9,15 @@ import time
 
 DIAS_PARA_FRENTE = 4
 
-BASE = 'https://www.guiadetv.com'
-
 CATEGORIAS = [
-    'https://www.guiadetv.com/categorias/variedades.html',
-    'https://www.guiadetv.com/categorias/tv-aberta.html',
-    'https://www.guiadetv.com/categorias/noticias.html',
-    'https://www.guiadetv.com/categorias/infantil.html',
-    'https://www.guiadetv.com/categorias/filmes-e-series.html',
-    'https://www.guiadetv.com/categorias/esportes.html',
-    'https://www.guiadetv.com/categorias/documentarios.html',
+    'https://meuguia.tv/programacao/categoria/Filmes',
+    'https://meuguia.tv/programacao/categoria/Series',
+    'https://meuguia.tv/programacao/categoria/Esportes',
+    'https://meuguia.tv/programacao/categoria/Infantil',
+    'https://meuguia.tv/programacao/categoria/Variedades',
+    'https://meuguia.tv/programacao/categoria/Documentarios',
+    'https://meuguia.tv/programacao/categoria/Noticias',
+    'https://meuguia.tv/programacao/categoria/Aberta',
 ]
 
 
@@ -28,98 +27,68 @@ def descobrir_canais():
         try:
             r = requests.get(url_cat, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
             soup = BeautifulSoup(r.content, 'html.parser')
-            for a in soup.find_all('a', href=re.compile(r'/canal/')):
+            for a in soup.find_all('a', href=True):
                 href = a['href']
-                if href.startswith('//'):
-                    href = 'https:' + href
-                elif href.startswith('/'):
-                    href = BASE + href
-                nome = ' '.join(a.get_text().split())
-                if nome and nome not in canais:
-                    canais[nome] = href
+                if '/programacao/canal/' in href:
+                    texto = a.get_text().strip()
+                    nome = texto.split('\n')[0].strip()
+                    if nome and nome not in canais:
+                        canais[nome] = href
         except:
             pass
     return canais
 
 
-def extrair_programacao(url_canal, data_limite):
+def extrair_programacao(url_canal, data_limite, hoje):
+    if url_canal.startswith('/'):
+        url_canal = 'https://meuguia.tv' + url_canal
+
     r = requests.get(url_canal, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
     soup = BeautifulSoup(r.content, 'html.parser')
+    texto = soup.get_text()
+    linhas = [l.strip() for l in texto.split('\n') if l.strip()]
 
     eventos = []
-    for sec in soup.find_all('section', id=re.compile(r'^dia-\d{4}-\d{2}-\d{2}$')):
-        for li in sec.find_all('li'):
-            time_tag = li.find('time', attrs={'datetime': True})
-            if not time_tag:
-                continue
+    data_atual = None
 
-            try:
-                inicio = datetime.strptime(time_tag['datetime'][:19], '%Y-%m-%dT%H:%M:%S')
-            except:
-                continue
+    for i, linha in enumerate(linhas):
+        match_dia = re.match(r'^(\w+(?:-feira)?),\s*(\d+)/(\d+)', linha, re.IGNORECASE)
+        if match_dia:
+            dia_num = int(match_dia.group(2))
+            mes_num = int(match_dia.group(3))
+            ano = hoje.year
+            if mes_num < hoje.month:
+                ano += 1
+            data_atual = datetime(ano, mes_num, dia_num)
+            continue
+
+        match_hora = re.match(r'^(\d{2}:\d{2})$', linha)
+        if match_hora and data_atual:
+            hora = match_hora.group(1)
+            h, m = map(int, hora.split(':'))
+            inicio = data_atual.replace(hour=h, minute=m, second=0, microsecond=0)
 
             if inicio > data_limite:
                 continue
 
-            link_prog = li.find('a', href=re.compile(r'/programa/'))
-            if not link_prog:
-                continue
+            titulo = ''
+            genero = ''
 
-            titulo = ' '.join(link_prog.get_text().split())
-            if not titulo:
-                continue
+            if i + 1 < len(linhas):
+                titulo = linhas[i + 1]
 
-            sub_titulo = ''
-            if ' : ' in titulo:
-                titulo, sub_titulo = titulo.split(' : ', 1)
+            if i + 2 < len(linhas):
+                genero_bruto = linhas[i + 2]
+                if '/' in genero_bruto and not genero_bruto.startswith('Publicidade'):
+                    genero = genero_bruto
 
-            duracao_min = 60
-            if time_tag.parent:
-                span_dur = time_tag.parent.find('span')
-                if span_dur:
-                    txt_dur = ' '.join(span_dur.get_text().split())
-                    match_dur = re.match(r'(\d+)\s*h\s*(\d+)?', txt_dur)
-                    if match_dur:
-                        duracao_min = int(match_dur.group(1)) * 60 + int(match_dur.group(2) or 0)
-                    else:
-                        match_dur = re.match(r'(\d+)\s*min', txt_dur)
-                        if match_dur:
-                            duracao_min = int(match_dur.group(1))
+            if titulo and not titulo.startswith('Publicidade'):
+                eventos.append({
+                    'inicio': inicio,
+                    'titulo': titulo,
+                    'genero': genero
+                })
 
-            badges = []
-            for span in li.find_all('span'):
-                if span.find('span'):
-                    continue
-                txt_span = ' '.join(span.get_text().split())
-                if txt_span and len(txt_span) < 30 and not re.match(r'^\d', txt_span):
-                    badges.append(txt_span)
-            tem_ao_vivo = any(b.lower() == 'ao vivo' for b in badges)
-
-            sinopse = ''
-            p_sinopse = li.find('p')
-            if p_sinopse:
-                sinopse = ' '.join(p_sinopse.get_text().split())
-                if 'sinopse n' in sinopse.lower()[:12]:
-                    sinopse = ''
-
-            if tem_ao_vivo:
-                titulo_final = 'Ao vivo - ' + titulo
-            else:
-                titulo_final = titulo
-
-            evento = {
-                'inicio': inicio,
-                'fim': inicio + timedelta(minutes=duracao_min),
-                'titulo': titulo_final,
-            }
-            if sub_titulo:
-                evento['sub_titulo'] = sub_titulo
-            if sinopse:
-                evento['desc'] = sinopse
-
-            eventos.append(evento)
-
-    eventos.sort(key=lambda x: x['inicio'])
     return eventos
 
 
@@ -131,21 +100,21 @@ def gerar_xml(caminho_saida):
     print(f'Canais descobertos: {len(canais)}')
 
     root = ET.Element('tv')
-    root.set('generator-info-name', 'Scraper GuiaDeTV')
+    root.set('generator-info-name', 'Scraper MeuGuia')
 
     total_eventos = 0
     processados = 0
 
     for nome, url in sorted(canais.items()):
         try:
-            eventos = extrair_programacao(url, data_limite)
+            eventos = extrair_programacao(url, data_limite, hoje)
             if not eventos:
                 continue
 
             eventos.sort(key=lambda x: x['inicio'])
             for i in range(len(eventos) - 1):
-                if eventos[i]['fim'] > eventos[i + 1]['inicio']:
-                    eventos[i]['fim'] = eventos[i + 1]['inicio']
+                eventos[i]['fim'] = eventos[i + 1]['inicio']
+            eventos[-1]['fim'] = eventos[-1]['inicio'] + timedelta(hours=1)
 
             channel = ET.SubElement(root, 'channel')
             channel.set('id', nome)
@@ -161,13 +130,14 @@ def gerar_xml(caminho_saida):
                 title = ET.SubElement(prog, 'title')
                 title.text = ev['titulo']
 
-                if ev.get('sub_titulo'):
-                    sub = ET.SubElement(prog, 'sub-title')
-                    sub.text = ev['sub_titulo']
-
-                if 'desc' in ev:
-                    desc = ET.SubElement(prog, 'desc')
-                    desc.text = ev['desc']
+                if ev['genero']:
+                    partes = ev['genero'].split('/')
+                    if len(partes) > 0 and partes[0].strip():
+                        cat1 = ET.SubElement(prog, 'category')
+                        cat1.text = partes[0].strip()
+                    if len(partes) > 1 and partes[1].strip():
+                        cat2 = ET.SubElement(prog, 'category')
+                        cat2.text = partes[1].strip()
 
             total_eventos += len(eventos)
             processados += 1
@@ -184,5 +154,5 @@ def gerar_xml(caminho_saida):
 
 
 if __name__ == '__main__':
-    caminho = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'epg_guiadetv.xml')
+    caminho = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'epg_meuguia.xml')
     gerar_xml(caminho)
